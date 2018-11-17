@@ -1,0 +1,118 @@
+import viajes.*
+import TiposDeViajes.*
+import socios.*
+
+describe "LeGrandChef"{
+	const playa1 = new ViajePlaya (largoPlaya=2000, idiomas = ["espaniol", "ingles", "portugues"])
+	const ciudad1 = new ViajeCiudad (atracciones =4, idiomas = ["espaniol"])
+	const ciudadTrop1 = new ViajeCiudadTrop (atracciones=4, idiomas = ["portugues, ingles"])
+	const ciudad2 = new ViajeCiudad (atracciones =8, idiomas = ["ingles"])
+	const ciudad2bis = new ViajeCiudad (atracciones =5, idiomas = ["ingles"])
+	const ciudadTrop2 = new ViajeCiudadTrop (atracciones=8, idiomas = ["espaniol","ingles","filipino"])
+	const trekking1 = new ViajeTrekking (kilometros=100, diasSol=130, idiomas = ["espaniol","mapudungun"])
+	const trekking2 = new ViajeTrekking (kilometros=50, diasSol=240, idiomas = ["quechua", "espaniol"])
+	const trekking3 = new ViajeTrekking (kilometros=250, diasSol=130, idiomas = ["aleman", "frances", "italiano", "suizo"])
+	const practicaBasquet = new ClaseGimnasia()
+	const claseSpinning= new ClaseGimnasia()
+	const libro1 = new Libro (autor = "Roque",cantPag=300, idioma="espaniol")
+	const libro2 = new Libro (autor = "Roque",cantPag=450, idioma="italiano")
+	const biblioteca1 = new TallerLiterario(libros=[libro1,libro2])
+	const roque = new Socio (
+		idiomas = ["espaniol"],
+		edad = 40,
+		actividadesRealizadas = [playa1,playa1],
+		maxActividades = 2,
+		tipo = coherente)
+	const ana = new Socio (
+		idiomas = ["espaniol"],
+		edad = 25,
+		actividadesRealizadas = [playa1,playa1],
+		maxActividades = 3,
+		tipo = coherente)
+	fixture{
+		mutual.agregarAct(playa1)
+		mutual.agregarAct(ciudad1)
+		mutual.agregarAct(ciudadTrop1)
+		mutual.agregarAct(ciudad2)
+		mutual.agregarAct(ciudadTrop2)
+		mutual.agregarAct(trekking1)
+		mutual.agregarAct(trekking2)
+		mutual.agregarAct(trekking3)
+		mutual.agregarAct(practicaBasquet)
+		mutual.agregarAct(claseSpinning)
+		mutual.agregarAct(biblioteca1)
+		}
+
+test "ciudad1 lleva 2 dias, no esfuerzo, broncea" {
+	assert.equals(2, ciudad1.dias())
+	assert.that(not ciudad1.esfuerzo())
+	assert.that(not ciudad1.bronceado())
+	}
+test "ciudadTrop1 lleva 3 dias, no esfuerzo, broncea"{
+	assert.equals(3,ciudadTrop1.dias())
+	assert.that(not ciudadTrop1.esfuerzo())
+	assert.that(ciudadTrop1.bronceado())
+	}
+test "ciudad2 lleva 4 dias, esfuerzo SI, bronceado NO"{
+	assert.equals(4, ciudad2.dias())
+	assert.that(ciudad2.esfuerzo())
+	assert.that(not ciudad2.bronceado())
+	}
+test "ciudadtrop2 lleva 5 dias, esfuerzo SI, bronceado SI"{
+	assert.equals(5,ciudadTrop2.dias())
+	assert.that(ciudadTrop2.esfuerzo())
+	assert.that(ciudadTrop2.bronceado())
+	}
+//test "ciudadtrop3 lleva 6 dias, esfuerzo NO, bronceado SI"{} 
+//este test daría erroneo porque el resultado no cumple con las condiciones
+test "trekking1 lleva 2 dias, esfuerzo SI, bronceado NO"{
+	assert.equals(2,trekking1.dias())
+	assert.that(trekking1.esfuerzo())
+	assert.that(not trekking1.bronceado())
+	}
+test "trekking2 lleva 1 dia, esfuerzo NO, bronceado SI"{
+	assert.equals(1, trekking2.dias())
+	assert.that(not trekking2.esfuerzo())
+	assert.that(trekking2.bronceado())
+	}
+test "trekking3 lleva 5dias, esfuerzo SI, bronceado SI"{
+	assert.equals(5,trekking3.dias())
+	assert.that(trekking3.esfuerzo())
+	assert.that(trekking3.bronceado())
+	}
+test "Playa1 es interesate por idiomas. ciudad1 no es interesante,
+	 ciudad2bis SI (por atracciones). Trekking2 es interesante por diasSol"{
+	assert.that(not ciudad1.esInteresante())
+	assert.that(ciudad2bis.esInteresante())
+	assert.that(playa1.esInteresante())
+	assert.that(trekking2.esInteresante())
+	}
+test "roque es amante del sol"{
+	assert.that(roque.adoraElSol())
+	}
+test "roque no puede anotarse a otra actividad"{
+	assert.throwsExceptionWithMessage("no se pueden agregar mas actividades",{roque.registrarAct(practicaBasquet)})
+}
+test "Ana si puede, pero pierde su estado de adoraElSol"{
+	ana.registrarAct(claseSpinning)
+	assert.that(not ana.adoraElSol())
+	}
+test "A roque le atrae la playa. A Ana la ciudad 2."{
+	assert.that(roque.leAtrae().contains(playa1))
+	assert.that(ana.leAtrae().contains(ciudad2))
+	}
+test "trekking 2 es interesante, le interesa a Ana, y Ana no lo hizo"{
+	assert.that(trekking2.esInteresante())
+	assert.that(ana.leAtrae().contains(trekking2))
+	assert.that(not ana.hizo(trekking2))
+}
+test "Trekking 2 se recomienda a Ana" {
+	assert.that(trekking2.seRecomiendaA(ana))
+}
+test "clase spinning se recomienda a Ana"{
+	assert.that(claseSpinning.seRecomiendaA(ana))
+}
+test "la biblioteca1 requiere esfuerzo"{
+	assert.that(biblioteca1.esfuerzo())
+	}
+}
